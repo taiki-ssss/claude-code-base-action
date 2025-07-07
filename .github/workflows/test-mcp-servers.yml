@@ -28,7 +28,10 @@ jobs:
         id: claude-test
         with:
           prompt: "List all available tools"
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_oauth: "true"
+          claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
+          claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
         env:
           # Change to test directory so it finds .mcp.json
           CLAUDE_WORKING_DIR: ${{ github.workspace }}/test/mcp-test
@@ -109,7 +112,10 @@ jobs:
         id: claude-config-test
         with:
           prompt: "List all available tools"
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_oauth: "true"
+          claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
+          claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
           mcp_config: '{"mcpServers":{"test-server":{"type":"stdio","command":"bun","args":["simple-mcp-server.ts"],"env":{}}}}'
         env:
           # Change to test directory so bun can find the MCP server script
