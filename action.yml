@@ -163,7 +163,6 @@ runs:
         CLAUDE_ACCESS_TOKEN: ${{ inputs.claude_access_token }}
         CLAUDE_REFRESH_TOKEN: ${{ inputs.claude_refresh_token }}
         CLAUDE_EXPIRES_AT: ${{ inputs.claude_expires_at }}
-        SECRETS_ADMIN_PAT: ${{ inputs.secrets_admin_pat }}
 
         # AWS configuration
         AWS_REGION: ${{ env.AWS_REGION }}
