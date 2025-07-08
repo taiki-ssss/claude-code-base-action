@@ -1,11 +1,21 @@
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { homedir } from "os";
+import { execSync } from "node:child_process";
+
+interface Credentials {
+  claude: ClaudeCredentials;
+  github: GithubCredentials;
+}
 
 interface ClaudeCredentials {
   accessToken: string;
   refreshToken: string;
   expiresAt: string;
+}
+
+interface GithubCredentials {
+  parsonalAccessToken: string;
 }
 
 interface UpdateTokenResponse {
@@ -20,15 +30,15 @@ interface UpdateTokenResponse {
  * 
  * @param credentials 認証情報
  */
-export async function setupOAuthCredentials(credentials: ClaudeCredentials) {
+export async function setupOAuthCredentials(credentials: Credentials) {
   const claudeDir = join(homedir(), ".claude");
   const credentialsPath = join(claudeDir, ".credentials.json");
 
   await mkdir(claudeDir, { recursive: true });
 
-  let accessToken = credentials.accessToken;
-  let refreshToken = credentials.refreshToken;
-  let expiresAt = parseInt(credentials.expiresAt);
+  let accessToken = credentials.claude.accessToken;
+  let refreshToken = credentials.claude.refreshToken;
+  let expiresAt = parseInt(credentials.claude.expiresAt);
 
   if(tokenExpired(expiresAt)) {
     const newToken = await updateToken(refreshToken);
@@ -37,6 +47,15 @@ export async function setupOAuthCredentials(credentials: ClaudeCredentials) {
       accessToken = newToken.accessToken;
       refreshToken = newToken.refreshToken;
       expiresAt = newToken.expiresAt;
+
+      updateGithubSercrets({
+        claude: {
+          accessToken,
+          refreshToken,
+          expiresAt: expiresAt.toString(),
+        },
+        github: credentials.github
+      });
     }
   }
 
@@ -90,6 +109,31 @@ async function updateToken(refreshToken: string): Promise<{ accessToken: string;
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     return null;
+  }
+}
+
+/**
+ * Github Sercret を更新する
+ * 
+ * @param accessToken アクセストークン
+ * @param refreshToken リフレッシュトークン
+ * @param expiresAt 有効期限
+ */
+async function updateGithubSercrets(credentials: Credentials)
+{
+  const env = { ...process.env, GH_TOKEN: credentials.github.parsonalAccessToken };
+
+  const accessToken = credentials.claude.accessToken;
+  const refreshToken = credentials.claude.refreshToken;
+  const expiresAt = credentials.claude.expiresAt;
+
+  try {    
+    execSync(`gh secret set CLAUDE_ACCESS_TOKEN --body "${accessToken}"`, { env, stdio: 'inherit' });
+    execSync(`gh secret set CLAUDE_REFRESH_TOKEN --body "${refreshToken}"`, { env, stdio: 'inherit' });
+    execSync(`gh secret set CLAUDE_EXPIRES_AT --body "${expiresAt}"`, { env, stdio: 'inherit' });
+  } catch (error) {
+    console.error('シークレットの更新に失敗しました', error);
+    throw error;
   }
 }
 

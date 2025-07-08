@@ -14,9 +14,14 @@ async function run() {
     // OAuth 認証が有効な場合に認証情報のセットアップを行う
     if (process.env.CLAUDE_CODE_USE_OAUTH === "1") {
       await setupOAuthCredentials({
-        accessToken: process.env.CLAUDE_ACCESS_TOKEN!,
-        refreshToken: process.env.CLAUDE_REFRESH_TOKEN!,
-        expiresAt: process.env.CLAUDE_EXPIRES_AT!
+        claude: {
+          accessToken: process.env.CLAUDE_ACCESS_TOKEN!,
+          refreshToken: process.env.CLAUDE_REFRESH_TOKEN!,
+          expiresAt: process.env.CLAUDE_EXPIRES_AT!,
+        },
+        github: {
+          parsonalAccessToken: process.env.PAT_WITH_SECRETS_WRITE!
+        }
       });
     }
 
