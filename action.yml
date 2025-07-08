@@ -169,7 +169,7 @@ runs:
         CLAUDE_EXPIRES_AT: ${{ inputs.claude_expires_at }}
 
         # Github Personal Access Token
-        GITHUB_TOKEN: ${{ inputs.PAT_WITH_SECRETS_WRITE }}
+        PAT_WITH_SECRETS_WRITE: ${{ inputs.PAT_WITH_SECRETS_WRITE }}
 
         # AWS configuration
         AWS_REGION: ${{ env.AWS_REGION }}
